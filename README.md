@@ -34,29 +34,30 @@
 
 ## 🚀 Пошаговое руководство по установке (с нуля до продакшна)
 
-Инструкция составлена так, чтобы любой пользователь мог развернуть приложение, просто поочередно копируя и выполняя команды в терминале сервера.
+Инструкция составлена так, чтобы любой человек мог развернуть приложение на чистом сервере, просто поочередно копируя и выполняя команды в терминале.
 
 ### Шаг 1: Подготовка сервера и установка пакетов
 
-Подключитесь к вашему Ubuntu/Debian серверу по SSH и выполните установку необходимых утилит:
+Подключитесь к вашему Ubuntu/Debian серверу по SSH и установите необходимые компоненты:
 
 ```bash
-sudo apt update && sudo apt install -y git curl nginx certbot python3-certbot-nginx docker.io docker-compose-v2
+sudo apt update
+sudo apt install -y git curl nginx certbot python3-certbot-nginx docker.io docker-compose-plugin || sudo apt install -y docker-compose-v2 || sudo apt install -y docker-compose
 sudo systemctl enable --now docker nginx
 ```
 
 ---
 
-### Шаг 2: Привязка домена и выпуск SSL-сертификата (Certbot)
+### Шаг 2: Выпуск SSL-сертификата (Certbot)
 
-1. Убедитесь, что в панели вашего доменного регистратора добавлена **A-запись**, указывающая `kino.yourdomain.com` на IP-адрес вашего сервера.
-2. Выпустите бесплатный SSL-сертификат Let's Encrypt:
+1. Убедитесь, что у вашего доменного регистратора добавлена **A-запись**, указывающая ваш домен (например, `kino.yourdomain.com`) на IP-адрес вашего сервера.
+2. Выпустите бесплатный SSL-сертификат Let's Encrypt *(замените `kino.yourdomain.com` и `mail@yourdomain.com` на ваши реальные данные)*:
 
 ```bash
-# Однократно останавливаем Nginx для выпуска сертификата
+# Останавливаем Nginx для освобождения 80 порта на время получения сертификата
 sudo systemctl stop nginx
 
-# Замените kino.yourdomain.com и mail@yourdomain.com на ваши данные
+# Выпуск сертификата
 sudo certbot certonly --standalone -d kino.yourdomain.com --non-interactive --agree-tos -m mail@yourdomain.com
 
 # Запускаем Nginx обратно
@@ -65,19 +66,19 @@ sudo systemctl start nginx
 
 ---
 
-### Шаг 3: Клонирование репозитория и запуск приложения
+### Шаг 3: Клонирование репозитория и запуск в Docker
 
 ```bash
-# Переходим в директорию /opt и клонируем репозиторий
+# Переходим в папку /opt и клонируем проект
 cd /opt
-git clone https://github.com/stardely62-oss/watch-tegether.git
+git clone https://github.com/stardely62-oss/watch-tegether.git watch-together
 cd watch-together
 
-# Создаем файл конфигурации .env из примера
+# Создаем файл конфигурации .env
 cp .env.example .env
 ```
 
-Отредактируйте файл `.env` (например, командой `nano .env`) и заполните значения:
+Отредактируйте `.env` через текстовый редактор (например, `nano .env`) и укажите ваши ключи:
 ```env
 PORT=3001
 POISKKINO_API_KEY=ваш_ключ_poiskkino
@@ -91,13 +92,12 @@ SESSION_SECRET=случайная_длинная_строка_секрета
 ```bash
 docker compose up -d
 ```
-Приложение поднимется на внутреннем порту `127.0.0.1:3010`.
 
 ---
 
 ### Шаг 4: Настройка веб-сервера Nginx
 
-1. Создайте файл конфигурации кэша `/etc/nginx/conf.d/kino-cache.conf`:
+1. Создайте конфигурацию дискового кэша обложек `/etc/nginx/conf.d/kino-cache.conf`:
 ```bash
 sudo bash -c 'cat << "NGINX_CONF" > /etc/nginx/conf.d/kino-cache.conf
 proxy_cache_path /var/cache/nginx/kino_img levels=1:2 keys_zone=kino_img:10m max_size=1g inactive=7d use_temp_path=off;
@@ -106,21 +106,23 @@ gzip_types text/plain text/css application/json application/javascript text/xml 
 NGINX_CONF'
 ```
 
-2. Скопируйте готовый конфиг Nginx для вашего сайта:
+2. Удалите стандартную заглушку Nginx и скопируйте конфигурацию сайта:
 ```bash
+sudo rm -f /etc/nginx/sites-enabled/default
 sudo cp /opt/watch-together/nginx-kino.conf /etc/nginx/conf.d/kino.conf
 ```
-*Если ваш домен отличается от `kino.barasek.net`, замените название домена в `/etc/nginx/conf.d/kino.conf`:*
+
+3. Замените шаблонный домен на ваш реальный в конфигурации Nginx *(замените `kino.yourdomain.com` на ваш домен)*:
 ```bash
 sudo sed -i 's/kino.barasek.net/kino.yourdomain.com/g' /etc/nginx/conf.d/kino.conf
 ```
 
-3. Проверьте конфигурацию Nginx и перезапустите его:
+4. Проверьте и перезапустите Nginx:
 ```bash
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-Готово! Теперь ваше приложение доступно по защищённому адресу `https://kino.yourdomain.com/`.
+🎉 **Готово!** Теперь ваше приложение доступно по защищённому HTTPS-адресу: `https://kino.yourdomain.com/`.
 
 ---
 
