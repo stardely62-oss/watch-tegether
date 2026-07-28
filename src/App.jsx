@@ -467,6 +467,13 @@ export default function App() {
     try {
       const res = await setSoloStatus(id, status);
       setMedia((prev) => prev.map((m) => (m.id === id ? res : m)));
+      
+      let label = status === 'watched' ? 'Уже посмотрели' : status === 'watching' ? 'Смотрим сейчас' : 'Хотим посмотреть';
+      if (filterWatchMode === 'solo' && selectedSoloUserId && selectedSoloUserId !== user?.id) {
+        showToast(`Добавлено в ваш личный список: ${label}`);
+      } else {
+        showToast(`Фильм перемещен в: ${label}`);
+      }
     } catch (e) { console.error(e); }
   };
 
@@ -680,7 +687,6 @@ export default function App() {
                   count: statusCounts.want,
                   cls: 'want',
                   onClick: () => {
-                    setFilterTonight(false);
                     setFilterStatus('want');
                   },
                 },
