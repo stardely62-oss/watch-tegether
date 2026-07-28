@@ -545,6 +545,15 @@ export const db = {
       m.soloStatuses[userId] = status;
     }
 
+    if (userId === m.addedBy) {
+      if (m.soloStatuses[userId]) {
+        m.status = m.soloStatuses[userId];
+        if (m.status === 'watched') {
+          m.watchedAt = new Date().toISOString();
+        }
+      }
+    }
+
     const watchers = Object.keys(m.soloStatuses);
     if (m.addedBy && !watchers.includes(m.addedBy)) {
       watchers.push(m.addedBy); // ensure original author is part of watchers
