@@ -6,6 +6,7 @@ import {
 } from 'react';
 import {
   api,
+  toggleSoloWatch,
   clearSession,
   ensureTelegramSession,
   getToken,
@@ -272,6 +273,16 @@ export default function App() {
   /** Base filters without status — used to build sections */
   const baseFiltered = useMemo(() => {
     let list = [...media];
+    if (filterWatchMode === 'together') {
+      list = list.filter((m) => (m.watchMode || 'together') !== 'solo');
+    } else if (filterWatchMode === 'solo') {
+      const targetId = selectedSoloUserId || user?.id;
+      list = list.filter((m) => {
+        if (m.watchMode !== 'solo') return false;
+        const watchers = Array.isArray(m.watchedByUsers) ? m.watchedByUsers : (m.soloUserId ? [m.soloUserId] : []);
+        return watchers.includes(targetId) || m.addedBy === targetId;
+      });
+    }
     if (filterType !== 'all') list = list.filter((m) => m.type === filterType);
     if (filterFav) list = list.filter((m) => m.isFavorite);
     if (filterMine && user) list = list.filter((m) => m.addedBy === user.id);
@@ -470,6 +481,13 @@ export default function App() {
 
 
 
+  const handleSoloWatch = async (id) => {
+    try {
+      const res = await toggleSoloWatch(id);
+      setMedia((prev) => prev.map((m) => (m.id === id ? res : m)));
+    } catch (e) { console.error(e); }
+  };
+
   const handleToggleFav = async (item) => {
     try {
       const res = await api.toggleFavorite(item.id);
@@ -648,7 +666,7 @@ export default function App() {
                   </span>
                   <span>Мой список (Вы)</span>
                 </button>
-                {(friends || []).map((f) => (
+                {(friends || []).filter(f => f.id !== user?.id).map((f) => (
                   <button
                     key={f.id}
                     type="button"
@@ -1047,7 +1065,7 @@ export default function App() {
                         <header className="list-section-head">
                           <div className="list-section-titles">
                             <h2 id={`section-${section.id}`}>
-                              {section.title}
+                              {filterWatchMode === 'solo' ? (section.id === 'want' ? 'Хочу посмотреть' : section.id === 'watching' ? 'Смотрю сейчас' : 'Просмотрено') : section.title}
                             </h2>
                           </div>
                           <span className={`list-section-count ${section.id}`}>
@@ -1066,6 +1084,8 @@ export default function App() {
                               <MediaCard
                                 key={item.id}
                                 item={item}
+                                onSoloWatch={handleSoloWatch}
+                                currentUser={user}
                                 onFav={() => handleToggleFav(item)}
                                 onRate={() => setRateItem(item)}
                                 onStatus={(s) => handleStatus(item, s)}
@@ -1131,6 +1151,8 @@ export default function App() {
               }
             }}
             onRate={() => setRateItem(detailItem)}
+            onSoloWatch={handleSoloWatch}
+            currentUser={user}
             onFav={() => handleToggleFav(detailItem)}
             onStatus={(s) =>
               handleStatus(

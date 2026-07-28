@@ -102,17 +102,19 @@ const MediaCard = memo(function MediaCard({
                 ))}
               </div>
             </div>
+            {onSoloWatch && !item.hasWatchedSolo && item.addedBy !== currentUser?.id && (
             <button
               type="button"
-              className={`btn btn-xs ${item.hasWatchedSolo ? 'btn-primary' : 'btn-ghost'}`}
+              className="btn btn-xs btn-ghost"
               onClick={(e) => {
                 e.stopPropagation();
                 onSoloWatch(item.id);
               }}
-              title={item.hasWatchedSolo ? 'Снять отметку' : 'Отметить, что я тоже посмотрел(а)'}
+              title="Отметить, что я тоже посмотрел(а)"
             >
-              {item.hasWatchedSolo ? '✓ Я посмотрел(а)' : '+ Я тоже посмотрел(а)'}
+              + Я тоже посмотрел(а)
             </button>
+            )}
           </div>
         )}
         {(item.genres || []).length > 0 && (
