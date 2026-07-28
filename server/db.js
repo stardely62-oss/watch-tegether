@@ -451,7 +451,7 @@ export const db = {
       watchMode: ["together", "solo"].includes(watchMode) ? watchMode : "together",
       soloUserId: watchMode === "solo" ? (soloUserId || addedBy) : null,
       watchedByUsers: Array.isArray(watchedByUsers) && watchedByUsers.length > 0 ? watchedByUsers : (watchMode === "solo" ? [addedBy] : []),
-      soloStatuses: watchMode === "solo" ? { [addedBy]: status === 'watched' ? 'watched' : 'want' } : {},
+      soloStatuses: watchMode === "solo" ? { [addedBy]: status } : {},
       addedBy,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

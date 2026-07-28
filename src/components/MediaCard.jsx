@@ -103,34 +103,49 @@ const MediaCard = memo(function MediaCard({
                 ))}
               </div>
             </div>
-            {onSoloWatch && item.addedBy !== currentUser?.id && (
+            {onSoloWatch && (
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                {item.soloStatuses?.[currentUser?.id] !== 'watched' && (
-                  <button
-                    type="button"
-                    className="btn btn-xs btn-ghost"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSoloWatch(item.id, 'watched');
-                    }}
-                    title="Отметить, что я тоже посмотрел(а)"
-                  >
-                    + Я тоже посмотрел(а)
-                  </button>
-                )}
-                {item.soloStatuses?.[currentUser?.id] !== 'want' && item.soloStatuses?.[currentUser?.id] !== 'watched' && (
-                  <button
-                    type="button"
-                    className="btn btn-xs btn-ghost"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSoloWatch(item.id, 'want');
-                    }}
-                    title="Добавить в мой список «Хочу посмотреть»"
-                  >
-                    + Тоже хочу
-                  </button>
-                )}
+                {(() => {
+                  const mySoloStatus = item.soloStatuses?.[currentUser?.id] || (item.watchMode === 'solo' && item.addedBy === currentUser?.id ? item.status : null);
+                  
+                  if (!mySoloStatus) {
+                    return (
+                      <>
+                        <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'watched'); }}>+ Я тоже посмотрел(а)</button>
+                        <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'want'); }}>+ Тоже хочу</button>
+                      </>
+                    );
+                  }
+                  
+                  if (mySoloStatus === 'want') {
+                    return (
+                      <>
+                        <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'watching'); }}>В "Смотрю сейчас"</button>
+                        <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'watched'); }}>В "Уже посмотрел/а"</button>
+                      </>
+                    );
+                  }
+                  
+                  if (mySoloStatus === 'watching') {
+                    return (
+                      <>
+                        <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'want'); }}>В "Хочу посмотреть"</button>
+                        <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'watched'); }}>В "Уже посмотрел/а"</button>
+                      </>
+                    );
+                  }
+                  
+                  if (mySoloStatus === 'watched') {
+                    return (
+                      <>
+                        <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'want'); }}>В "Хочу посмотреть"</button>
+                        <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'watching'); }}>В "Смотрю сейчас"</button>
+                      </>
+                    );
+                  }
+                  
+                  return null;
+                })()}
               </div>
             )}
           </div>
@@ -180,21 +195,25 @@ const MediaCard = memo(function MediaCard({
             <IconStar />
             Оценить
           </button>
-          <label className="sr-only" htmlFor={`status-${item.id}`}>
-            Переместить «{item.title}»
-          </label>
-          <select
-            id={`status-${item.id}`}
-            className="status-select inline status-move"
-            value={item.status}
-            onChange={(e) => onStatus(e.target.value)}
-            aria-label={`Переместить «${item.title}» в список`}
-            title="Переместить в другой список"
-          >
-            <option value="want">→ Хотим посмотреть</option>
-            <option value="watching">→ Смотрим сейчас</option>
-            <option value="watched">→ Уже посмотрели</option>
-          </select>
+          {item.watchMode !== 'solo' && (
+            <>
+              <label className="sr-only" htmlFor={`status-${item.id}`}>
+                Переместить «{item.title}»
+              </label>
+              <select
+                id={`status-${item.id}`}
+                className="status-select inline status-move"
+                value={item.status}
+                onChange={(e) => onStatus(e.target.value)}
+                aria-label={`Переместить «${item.title}» в список`}
+                title="Переместить в другой список"
+              >
+                <option value="want">→ Хотим посмотреть</option>
+                <option value="watching">→ Смотрим сейчас</option>
+                <option value="watched">→ Уже посмотрели</option>
+              </select>
+            </>
+          )}
         </div>
       </div>
     </article>

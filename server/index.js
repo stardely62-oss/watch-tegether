@@ -822,7 +822,7 @@ app.delete('/api/media/:id/rating', requireAuth, (req, res) => {
 // Solo Status toggle
 app.post('/api/media/:id/solo-status', requireAuth, (req, res) => {
   const { status } = req.body || {};
-  if (!['watched', 'want'].includes(status)) {
+  if (!['watched', 'want', 'watching'].includes(status)) {
     return res.status(400).json({ error: 'Неверный статус' });
   }
   const item = db.setSoloStatus(req.params.id, req.user.id, status);
