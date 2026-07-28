@@ -2961,3 +2961,45 @@ a {
   color: #ffffff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
+
+/* Solo Watchers Bar & Chips */
+.solo-watchers-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 8px 0;
+  padding: 6px 10px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 8px;
+  font-size: 0.78rem;
+}
+.solo-watchers-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.solo-label {
+  color: #fbbf24;
+  font-weight: 600;
+}
+.solo-chips {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.solo-chip {
+  padding: 2px 6px;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.btn-xs {
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  border-radius: 6px;
+}

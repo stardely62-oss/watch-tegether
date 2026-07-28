@@ -26,6 +26,7 @@ const MediaCard = memo(function MediaCard({
   onFav,
   onRate,
   onStatus,
+  onSoloWatch,
   onOpen,
 }) {
   const TypeIcon = TYPE_ICON[item.type] || IconFilm;
@@ -89,6 +90,31 @@ const MediaCard = memo(function MediaCard({
           )}
         </div>
         {item.note && <p className="card-note">{item.note}</p>}
+        {item.watchMode === 'solo' && (
+          <div className="solo-watchers-bar">
+            <div className="solo-watchers-info">
+              <span className="solo-label">👤 В одиночку:</span>
+              <div className="solo-chips">
+                {(item.watchedByUsersDetails || []).map((u) => (
+                  <span key={u.id} className="solo-chip" style={{ background: u.color }}>
+                    {u.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <button
+              type="button"
+              className={`btn btn-xs ${item.hasWatchedSolo ? 'btn-primary' : 'btn-ghost'}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSoloWatch(item.id);
+              }}
+              title={item.hasWatchedSolo ? 'Снять отметку' : 'Отметить, что я тоже посмотрел(а)'}
+            >
+              {item.hasWatchedSolo ? '✓ Я посмотрел(а)' : '+ Я тоже посмотрел(а)'}
+            </button>
+          </div>
+        )}
         {(item.genres || []).length > 0 && (
           <div className="genre-row">
             {(item.genres || []).slice(0, 3).map((g) => (

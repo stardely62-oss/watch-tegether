@@ -73,6 +73,7 @@ function migrate(data) {
     suggestedBy: null,
     suggestedAt: null,
     watchMode: m.watchMode || "together",
+    watchedByUsers: Array.isArray(m.watchedByUsers) ? m.watchedByUsers : (m.soloUserId ? [m.soloUserId] : []),
     soloUserId: m.soloUserId || null,
     ...m,
     watchLinks: Array.isArray(m.watchLinks) ? m.watchLinks : [],
@@ -411,6 +412,7 @@ export const db = {
       progressEpisode = null,
       watchMode = "together",
       soloUserId = null,
+      watchedByUsers = [],
       force = false,
     } = payload;
     if (!force) {
@@ -448,6 +450,7 @@ export const db = {
       suggestedAt: null,
       watchMode: ["together", "solo"].includes(watchMode) ? watchMode : "together",
       soloUserId: watchMode === "solo" ? (soloUserId || addedBy) : null,
+      watchedByUsers: Array.isArray(watchedByUsers) && watchedByUsers.length > 0 ? watchedByUsers : (watchMode === "solo" ? [addedBy] : []),
       addedBy,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -521,6 +524,27 @@ export const db = {
     if (updates.status && updates.status !== 'watched' && prevStatus === 'watched') {
       if (updates.watchedAt === undefined) m.watchedAt = null;
     }
+    m.updatedAt = new Date().toISOString();
+    cache.media[idx] = m;
+    bumpVersion();
+    scheduleFlush();
+    return m;
+  },
+
+
+  toggleSoloWatch(id, userId) {
+    const idx = cache.media.findIndex((m) => m.id === id);
+    if (idx === -1) return null;
+    const m = cache.media[idx];
+    let list = Array.isArray(m.watchedByUsers) ? m.watchedByUsers.slice() : (m.soloUserId ? [m.soloUserId] : []);
+    if (list.includes(userId)) {
+      list = list.filter((u) => u !== userId);
+    } else {
+      list.push(userId);
+    }
+    m.watchedByUsers = list;
+    m.watchMode = list.length > 0 ? "solo" : "together";
+    m.soloUserId = list.length > 0 ? list[0] : null;
     m.updatedAt = new Date().toISOString();
     cache.media[idx] = m;
     bumpVersion();

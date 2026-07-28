@@ -428,3 +428,7 @@ export const api = {
       { signal }
     ),
 };
+
+export async function toggleSoloWatch(id) {
+  return rawFetch(`/api/media/${id}/solo-watch`, { method: 'POST' });
+}

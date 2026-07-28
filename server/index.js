@@ -364,6 +364,8 @@ function enrichMediaList(userId, opts = {}) {
       : false;
     const addedByUser = usersById.get(item.addedBy) || null;
   const soloUser = item.soloUserId ? (usersById.get(item.soloUserId) || null) : null;
+    const watchedByUsers = Array.isArray(item.watchedByUsers) ? item.watchedByUsers : (item.soloUserId ? [item.soloUserId] : []);
+    const watchedByUsersDetails = watchedByUsers.map((uid) => usersById.get(uid)).filter(Boolean).map((u) => ({ id: u.id, name: u.name, color: u.color }));
     const comments = commentsByMedia.get(item.id) || [];
 
     const base = {
@@ -376,6 +378,9 @@ function enrichMediaList(userId, opts = {}) {
       watchMode: item.watchMode || "together",
       soloUserId: item.soloUserId || null,
       soloUser: soloUser ? { id: soloUser.id, name: soloUser.name, color: soloUser.color } : null,
+    watchedByUsers,
+    watchedByUsersDetails,
+    hasWatchedSolo: userId ? watchedByUsers.includes(userId) : false,
       addedBy: item.addedBy,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
@@ -465,6 +470,8 @@ function enrichOne(item, userId, { full = true } = {}) {
     : null;
   const addedByUser = usersById.get(item.addedBy) || null;
   const soloUser = item.soloUserId ? (usersById.get(item.soloUserId) || null) : null;
+    const watchedByUsers = Array.isArray(item.watchedByUsers) ? item.watchedByUsers : (item.soloUserId ? [item.soloUserId] : []);
+    const watchedByUsersDetails = watchedByUsers.map((uid) => usersById.get(uid)).filter(Boolean).map((u) => ({ id: u.id, name: u.name, color: u.color }));
   const out = {
     id: item.id,
     title: item.title,
@@ -476,6 +483,9 @@ function enrichOne(item, userId, { full = true } = {}) {
     watchMode: item.watchMode || "together",
     soloUserId: item.soloUserId || null,
     soloUser: soloUser ? { id: soloUser.id, name: soloUser.name, color: soloUser.color } : null,
+    watchedByUsers,
+    watchedByUsersDetails,
+    hasWatchedSolo: userId ? watchedByUsers.includes(userId) : false,
     addedBy: item.addedBy,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
@@ -805,6 +815,14 @@ app.delete('/api/media/:id/rating', requireAuth, (req, res) => {
   const userId = req.user.id;
   db.deleteRating(req.params.id, userId);
   res.json(enrichMedia(db.getMedia(req.params.id), userId, { full: false }));
+});
+
+
+// Solo Watch toggle
+app.post('/api/media/:id/solo-watch', requireAuth, (req, res) => {
+  const item = db.toggleSoloWatch(req.params.id, req.user.id);
+  if (!item) return res.status(404).json({ error: 'Не найден' });
+  res.json(enrichMedia(item, req.user.id, { full: false }));
 });
 
 // Favorites
