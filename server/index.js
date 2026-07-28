@@ -7,7 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { db } from './db.js';
 import * as catalog from './catalog.js';
-import { isTelegramConfigured, notifyTelegram } from './notify.js';
+import { isTelegramConfigured, notifyTelegram, notifyUsersExcept } from './notify.js';
 import {
   validateLoginWidget,
   validateWebAppInitData,
@@ -707,10 +707,11 @@ app.post('/api/media', requireAuth, async (req, res) => {
     });
   }
   const enriched = enrichMedia(result.item, addedBy, { full: false });
-  notifyTelegram(
-    `🎬 ${req.user.name} добавил: «${result.item.title}»${
+  notifyUsersExcept(
+    req.user.id,
+    `🎬 ${req.user.name} добавил(а): «${result.item.title}»${
       result.item.year ? ` (${result.item.year})` : ''
-    }\nСтатус: ${result.item.status}`
+    }\nСтатус: ${result.item.status === 'watched' ? 'Просмотрено' : 'Хотим посмотреть'}`
   ).catch(() => {});
   res.status(201).json(enriched);
 });
@@ -725,7 +726,8 @@ app.patch('/api/media/:id', requireAuth, async (req, res) => {
   const item = db.updateMedia(req.params.id, body);
   if (!item) return res.status(404).json({ error: 'Не найден' });
   if (body.suggestedTonight && !prev?.suggestedTonight) {
-    notifyTelegram(
+    notifyUsersExcept(
+      req.user.id,
       `🌙 ${req.user.name} предлагает на вечер: «${item.title}»`
     ).catch(() => {});
   }
@@ -762,8 +764,9 @@ app.post('/api/media/:id/comments', requireAuth, async (req, res) => {
   });
   if (result.error) return res.status(400).json({ error: result.error });
   const media = db.getMedia(req.params.id);
-  notifyTelegram(
-    `💬 ${req.user.name} о «${media?.title}»:\n${String(text).slice(0, 200)}`
+  notifyUsersExcept(
+    req.user.id,
+    `💬 ${req.user.name} оставил(а) комментарий к «${media?.title}»:\n«${String(text).slice(0, 200)}»`
   ).catch(() => {});
   res.status(201).json({
     ...result.comment,
@@ -804,9 +807,10 @@ app.post('/api/media/:id/rating', requireAuth, async (req, res) => {
     db.updateMedia(req.params.id, { status: 'watched' });
   }
   const m = db.getMedia(req.params.id);
-  notifyTelegram(
-    `⭐ ${req.user.name} поставил ${score}/10 «${m?.title}»${
-      review ? `\n«${String(review).slice(0, 120)}»` : ''
+  notifyUsersExcept(
+    req.user.id,
+    `⭐ ${req.user.name} поставил(а) ${score}/10 тайтлу «${m?.title}»${
+      review ? `\n«${String(review).slice(0, 150)}»` : ''
     }`
   ).catch(() => {});
   res.json(enrichMedia(db.getMedia(req.params.id), userId, { full: false }));
@@ -827,6 +831,14 @@ app.post('/api/media/:id/solo-status', requireAuth, (req, res) => {
   }
   const item = db.setSoloStatus(req.params.id, req.user.id, status);
   if (!item) return res.status(404).json({ error: 'Не найден' });
+
+  if (item.soloStatuses && item.soloStatuses[req.user.id] === 'watched') {
+    notifyUsersExcept(
+      req.user.id,
+      `👀 ${req.user.name} отметил(а) «+ Я тоже посмотрел(а)» для «${item.title}»!`
+    ).catch(() => {});
+  }
+
   res.json(enrichMedia(item, req.user.id, { full: false }));
 });
 
