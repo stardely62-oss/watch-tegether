@@ -25,6 +25,7 @@ import {
   STATUS_SECTIONS,
 } from './constants.js';
 import {
+  initial,
   loadUser,
   saveUser,
   clearAllSession,

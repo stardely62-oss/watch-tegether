@@ -158,6 +158,7 @@ export default function AddModal({ onClose, onAdded }) {
         description: form.description,
         posterUrl: form.posterUrl,
         status: form.status,
+        watchMode: form.watchMode,
         note: form.note,
         genres: form.genres
           .split(',')
@@ -477,9 +478,9 @@ export default function AddModal({ onClose, onAdded }) {
             <div className="form-group">
               <label htmlFor="status">Статус</label>
               <select id="status" value={form.status} onChange={set('status')}>
-                <option value="want">Хотим посмотреть</option>
-                <option value="watching">Смотрим сейчас</option>
-                <option value="watched">Уже посмотрели</option>
+                <option value="want">В очередь (Хочу / Хотим)</option>
+                <option value="watching">В процессе (Смотрю / Смотрим)</option>
+                <option value="watched">Просмотрено (Посмотрел(и))</option>
               </select>
             </div>
             <div className="form-group">
