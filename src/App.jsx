@@ -129,6 +129,7 @@ export default function App() {
   }, []);
 
   const [filterType, setFilterType] = useState('all');
+  const [filterWatchMode, setFilterWatchMode] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterFav, setFilterFav] = useState(false);
   const [filterMine, setFilterMine] = useState(false);
@@ -290,6 +291,7 @@ export default function App() {
   }, [
     media,
     filterType,
+    filterWatchMode,
     filterFav,
     filterMine,
     filterUnrated,
@@ -606,6 +608,29 @@ export default function App() {
           </div>
         ) : isHome ? (
           <>
+            <div className="mode-filter-bar" role="tablist">
+              <button
+                type="button"
+                className={`mode-filter-btn ${filterWatchMode === "all" ? "active" : ""}`}
+                onClick={() => setFilterWatchMode("all")}
+              >
+                🎬 Все
+              </button>
+              <button
+                type="button"
+                className={`mode-filter-btn ${filterWatchMode === "together" ? "active" : ""}`}
+                onClick={() => setFilterWatchMode("together")}
+              >
+                👥 Совместно
+              </button>
+              <button
+                type="button"
+                className={`mode-filter-btn ${filterWatchMode === "solo" ? "active" : ""}`}
+                onClick={() => setFilterWatchMode("solo")}
+              >
+                👤 В одиночку
+              </button>
+            </div>
             <div className="home-hero">
               <p className="home-lead">
                 {stats

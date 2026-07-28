@@ -26,6 +26,8 @@ export default function AddModal({ onClose, onAdded }) {
     description: '',
     posterUrl: '',
     status: 'want',
+    watchMode: 'together',
+    soloUserId: '',
     note: '',
     genres: '',
     trailerUrl: '',
@@ -451,6 +453,25 @@ export default function AddModal({ onClose, onAdded }) {
                   onChange={set('year')}
                   placeholder="2014"
                 />
+              </div>
+            </div>
+                        <div className="form-group">
+              <label>Режим просмотра</label>
+              <div className="watch-mode-selector">
+                <button
+                  type="button"
+                  className={`btn ${form.watchMode === "together" ? "btn-primary" : "btn-ghost"}`}
+                  onClick={() => setForm(f => ({ ...f, watchMode: "together" }))}
+                >
+                  👥 Вместе
+                </button>
+                <button
+                  type="button"
+                  className={`btn ${form.watchMode === "solo" ? "btn-primary" : "btn-ghost"}`}
+                  onClick={() => setForm(f => ({ ...f, watchMode: "solo" }))}
+                >
+                  👤 В одиночку
+                </button>
               </div>
             </div>
             <div className="form-group">

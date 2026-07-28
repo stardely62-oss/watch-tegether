@@ -363,6 +363,7 @@ function enrichMediaList(userId, opts = {}) {
       ? favs.some((f) => f.userId === userId)
       : false;
     const addedByUser = usersById.get(item.addedBy) || null;
+  const soloUser = item.soloUserId ? (usersById.get(item.soloUserId) || null) : null;
     const comments = commentsByMedia.get(item.id) || [];
 
     const base = {
@@ -372,6 +373,9 @@ function enrichMediaList(userId, opts = {}) {
       year: item.year,
       posterUrl: preferSmallPoster(item.posterUrl),
       status: item.status,
+      watchMode: item.watchMode || "together",
+      soloUserId: item.soloUserId || null,
+      soloUser: soloUser ? { id: soloUser.id, name: soloUser.name, color: soloUser.color } : null,
       addedBy: item.addedBy,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
@@ -460,6 +464,7 @@ function enrichOne(item, userId, { full = true } = {}) {
     ? ratings.find((r) => r.userId === userId) || null
     : null;
   const addedByUser = usersById.get(item.addedBy) || null;
+  const soloUser = item.soloUserId ? (usersById.get(item.soloUserId) || null) : null;
   const out = {
     id: item.id,
     title: item.title,
@@ -468,6 +473,9 @@ function enrichOne(item, userId, { full = true } = {}) {
     description: full ? item.description || '' : undefined,
     posterUrl: preferSmallPoster(item.posterUrl),
     status: item.status,
+    watchMode: item.watchMode || "together",
+    soloUserId: item.soloUserId || null,
+    soloUser: soloUser ? { id: soloUser.id, name: soloUser.name, color: soloUser.color } : null,
     addedBy: item.addedBy,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
@@ -634,6 +642,8 @@ app.post('/api/media', requireAuth, async (req, res) => {
     watchLinks,
     progressSeason,
     progressEpisode,
+    watchMode,
+    soloUserId,
     force = false,
   } = body;
   const addedBy = req.user.id;
@@ -674,6 +684,8 @@ app.post('/api/media', requireAuth, async (req, res) => {
     watchLinks,
     progressSeason,
     progressEpisode,
+    watchMode,
+    soloUserId,
     force: Boolean(force),
   });
   if (result.error === 'already_exists') {

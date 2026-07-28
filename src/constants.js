@@ -52,3 +52,13 @@ export const SECTION_PAGE_ALL = 6;
 export const SECTION_PAGE_FOCUS = 12;
 export const SECTION_PAGE_STEP = 12;
 export const USER_KEY = 'watch-together-user';
+
+export const WATCH_MODE_LABEL = {
+  together: "Совместно 👥",
+  solo: "В одиночку 👤",
+};
+
+export const WATCH_MODE_LABEL_SHORT = {
+  together: "Вместе",
+  solo: "Соло",
+};

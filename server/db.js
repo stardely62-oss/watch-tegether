@@ -72,6 +72,8 @@ function migrate(data) {
     suggestedTonight: false,
     suggestedBy: null,
     suggestedAt: null,
+    watchMode: m.watchMode || "together",
+    soloUserId: m.soloUserId || null,
     ...m,
     watchLinks: Array.isArray(m.watchLinks) ? m.watchLinks : [],
     genres: Array.isArray(m.genres) ? m.genres : [],
@@ -407,6 +409,8 @@ export const db = {
       watchLinks = [],
       progressSeason = null,
       progressEpisode = null,
+      watchMode = "together",
+      soloUserId = null,
       force = false,
     } = payload;
     if (!force) {
@@ -442,6 +446,8 @@ export const db = {
       suggestedTonight: false,
       suggestedBy: null,
       suggestedAt: null,
+      watchMode: ["together", "solo"].includes(watchMode) ? watchMode : "together",
+      soloUserId: watchMode === "solo" ? (soloUserId || addedBy) : null,
       addedBy,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

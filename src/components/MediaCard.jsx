@@ -51,6 +51,9 @@ const MediaCard = memo(function MediaCard({
           <TypeIcon />
           {TYPE_LABEL[item.type]}
         </span>
+        <span className={`watch-mode-badge ${item.watchMode === "solo" ? "solo" : "together"}`} title={item.watchMode === "solo" ? (item.soloUser ? `В одиночку (${item.soloUser.name})` : "В одиночку") : "Совместный просмотр"}>
+          {item.watchMode === "solo" ? `👤 ${item.soloUser ? item.soloUser.name : "Соло"}` : "👥 Вместе"}
+        </span>
         {item.suggestedTonight && (
           <span className="tonight-badge" title="На вечер">
             🌙
