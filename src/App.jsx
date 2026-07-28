@@ -1056,6 +1056,7 @@ export default function App() {
                               <MediaCard
                                 key={item.id}
                                 item={item}
+                                isMyList={filterWatchMode !== 'solo' || (!selectedSoloUserId || selectedSoloUserId === user?.id)}
                                 onSoloWatch={(id, status) => handleSoloStatus(id, status)}
                                 currentUser={user}
                                 onFav={() => handleToggleFav(item)}

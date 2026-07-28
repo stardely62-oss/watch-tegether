@@ -23,6 +23,7 @@ const TYPE_ICON = {
 
 const MediaCard = memo(function MediaCard({
   item,
+  isMyList = true,
   onFav,
   onRate,
   onStatus,
@@ -104,15 +105,18 @@ const MediaCard = memo(function MediaCard({
                 {(() => {
                   const mySoloStatus = item.soloStatuses?.[currentUser?.id] || (item.addedBy === currentUser?.id ? item.status : null);
                   
-                  if (!mySoloStatus) {
-                    return (
-                      <>
-                        <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'watched'); }}>+ Я тоже посмотрел(а)</button>
-                        <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'want'); }}>+ Тоже хочу</button>
-                      </>
-                    );
+                  if (!isMyList) {
+                    if (!mySoloStatus) {
+                      return (
+                        <>
+                          <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'watched'); }}>+ Я тоже посмотрел(а)</button>
+                          <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'want'); }}>+ Тоже хочу</button>
+                        </>
+                      );
+                    }
+                    return null;
                   }
-                  
+
                   if (mySoloStatus === 'want') {
                     return (
                       <>
