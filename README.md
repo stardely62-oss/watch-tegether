@@ -23,60 +23,6 @@
 
 ---
 
-## 🔒 Совместимость с VPN-нодами на одном сервере и другими проектами
-
-> **Главное преимущество**: Приложение **НЕ занимает порт 443** (контейнер работает на внутреннем порту `3010`, а Nginx принимает SSL-трафик на порту `8443`).
-
-Благодаря этой архитектуре вы можете развернуть **«Смотрим Вместе»** на **одном сервере вместе с VPN-нодой** (например, **Remnawave / VLESS Reality**) или другими веб-сервисами:
-* Port `443` остаётся полностью свободным для службы VPN-маскировки VLESS Reality.
-* Веб-браузеры, обращаясь к вашему домену по HTTPS на порт `443`, попадают на VPN-ноду. Нода по технологии **Self-Steal** считывает SNI вашего сайта и прозрачно перенаправляет HTTPS-трафик на Nginx (`127.0.0.1:8443`), который отдаёт веб-приложение.
-* Для пользователя веб-сайт открывается как обычно по стандарту `https://kino.yourdomain.com/` без указания нештатных портов!
-
-### ⚙️ Как работает скрипт Self-Steal (`reality-selfsteal.sh`)
-
-В репозиторий включены автоматические скрипты маскировки:
-- `reality-selfsteal.sh` — фоновый скрипт-демон (проверяет статус контейнера `remnanode`, патчит конфиг VLESS Reality и перезапускает ядро в случае сброса).
-- `patch-reality.js` — Node.js скрипт, подключаемый к внутреннему сокету Remnawave и внедряющий домен вашего сайта в `serverNames` и целевой адрес `127.0.0.1:8443`.
-
-#### Переменные в `.env` для Self-Steal:
-```env
-DOMAIN=kino.yourdomain.com
-REALITY_TOKEN=your_remnawave_internal_token
-```
-
-#### Быстрый запуск Self-Steal демона:
-```bash
-# Даем права на исполнение
-chmod +x /opt/watch-together/reality-selfsteal.sh
-
-# Запуск в фоновом режиме
-nohup /opt/watch-together/reality-selfsteal.sh > /var/log/reality-selfsteal.log 2>&1 &
-```
-
-#### Автозапуск через systemd (Рекомендуется):
-Создайте файл службы `/etc/systemd/system/watch-selfsteal.service`:
-```ini
-[Unit]
-Description=Watch Together Self-Steal Watcher for Remnawave
-After=docker.service
-
-[Service]
-Type=simple
-ExecStart=/opt/watch-together/reality-selfsteal.sh
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Активируйте службу одной командой:
-```bash
-sudo systemctl daemon-reload && sudo systemctl enable --now watch-selfsteal
-```
-
----
-
 ## 🛠️ Технологический стек
 
 - **Frontend**: React 18, Vite 6, Vanilla CSS (UI/UX Pro Max с темной темой).
@@ -201,6 +147,60 @@ sudo nginx -t && sudo systemctl reload nginx
 3. Укажите имя и описание приложения.
 4. В качестве **Web App URL** укажите ваш публичный HTTPS-адрес (например, `https://kino.yourdomain.com/`).
 5. (Опционально) Установите команду `/start` или кнопку меню Web App.
+
+---
+
+## 🔒 Совместимость с VPN-нодами на одном сервере и другими проектами
+
+> **Главное преимущество**: Приложение **НЕ занимает порт 443** (контейнер работает на внутреннем порту `3010`, а Nginx принимает SSL-трафик на порту `8443`).
+
+Благодаря этой архитектуре вы можете развернуть **«Смотрим Вместе»** на **одном сервере вместе с VPN-нодой** (например, **Remnawave / VLESS Reality**) или другими веб-сервисами:
+* Port `443` остаётся полностью свободным для службы VPN-маскировки VLESS Reality.
+* Веб-браузеры, обращаясь к вашему домену по HTTPS на порт `443`, попадают на VPN-ноду. Нода по технологии **Self-Steal** считывает SNI вашего сайта и прозрачно перенаправляет HTTPS-трафик на Nginx (`127.0.0.1:8443`), который отдаёт веб-приложение.
+* Для пользователя веб-сайт открывается как обычно по стандарту `https://kino.yourdomain.com/` без указания нештатных портов!
+
+### ⚙️ Как работает скрипт Self-Steal (`reality-selfsteal.sh`)
+
+В репозиторий включены автоматические скрипты маскировки:
+- `reality-selfsteal.sh` — фоновый скрипт-демон (проверяет статус контейнера `remnanode`, патчит конфиг VLESS Reality и перезапускает ядро в случае сброса).
+- `patch-reality.js` — Node.js скрипт, подключаемый к внутреннему сокету Remnawave и внедряющий домен вашего сайта в `serverNames` и целевой адрес `127.0.0.1:8443`.
+
+#### Переменные в `.env` для Self-Steal:
+```env
+DOMAIN=kino.yourdomain.com
+REALITY_TOKEN=your_remnawave_internal_token
+```
+
+#### Быстрый запуск Self-Steal демона:
+```bash
+# Даем права на исполнение
+chmod +x /opt/watch-together/reality-selfsteal.sh
+
+# Запуск в фоновом режиме
+nohup /opt/watch-together/reality-selfsteal.sh > /var/log/reality-selfsteal.log 2>&1 &
+```
+
+#### Автозапуск через systemd (Рекомендуется):
+Создайте файл службы `/etc/systemd/system/watch-selfsteal.service`:
+```ini
+[Unit]
+Description=Watch Together Self-Steal Watcher for Remnawave
+After=docker.service
+
+[Service]
+Type=simple
+ExecStart=/opt/watch-together/reality-selfsteal.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Активируйте службу одной командой:
+```bash
+sudo systemctl daemon-reload && sudo systemctl enable --now watch-selfsteal
+```
 
 ---
 
