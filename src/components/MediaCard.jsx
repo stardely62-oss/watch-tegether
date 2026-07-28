@@ -28,6 +28,7 @@ const MediaCard = memo(function MediaCard({
   onStatus,
   onSoloWatch,
   onOpen,
+  currentUser,
 }) {
   const TypeIcon = TYPE_ICON[item.type] || IconFilm;
   const progress = formatProgress(item);
