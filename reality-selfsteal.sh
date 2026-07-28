@@ -1,7 +1,15 @@
 #!/bin/bash
 set -uo pipefail
-DOMAIN="kino.barasek.net"
-TOKEN="60BDG7NRpBGyZ8myyZmaULJiuKBf6iWVOTf62kFyH70dcosb0LcvKE4SMantKqfy"
+
+# Load environment variables if .env exists
+if [ -f /opt/watch-together/.env ]; then
+  set -a
+  source /opt/watch-together/.env
+  set +a
+fi
+
+DOMAIN="${DOMAIN:-kino.barasek.net}"
+TOKEN="${REALITY_TOKEN:-your_reality_token_here}"
 DEST="127.0.0.1:8443"
 LOG="/var/log/reality-selfsteal.log"
 PATCH_JS="/opt/watch-together/patch-reality.js"
