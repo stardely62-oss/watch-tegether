@@ -430,7 +430,7 @@ export const api = {
 };
 
 export async function setSoloStatus(id, status) {
-  return rawFetch(`/api/media/${id}/solo-status`, {
+  return request(`/media/${id}/solo-status`, {
     method: 'POST',
     body: JSON.stringify({ status }),
   });
