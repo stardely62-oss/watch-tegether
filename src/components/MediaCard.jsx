@@ -103,10 +103,10 @@ const MediaCard = memo(function MediaCard({
                 ))}
               </div>
             </div>
-            {onSoloWatch && (
+            {onSoloWatch && item.watchMode === 'solo' && (
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
                 {(() => {
-                  const mySoloStatus = item.soloStatuses?.[currentUser?.id] || (item.watchMode === 'solo' && item.addedBy === currentUser?.id ? item.status : null);
+                  const mySoloStatus = item.soloStatuses?.[currentUser?.id] || (item.addedBy === currentUser?.id ? item.status : null);
                   
                   if (!mySoloStatus) {
                     return (
@@ -131,15 +131,6 @@ const MediaCard = memo(function MediaCard({
                       <>
                         <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'want'); }}>В "Хочу посмотреть"</button>
                         <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'watched'); }}>В "Уже посмотрел/а"</button>
-                      </>
-                    );
-                  }
-                  
-                  if (mySoloStatus === 'watched') {
-                    return (
-                      <>
-                        <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'want'); }}>В "Хочу посмотреть"</button>
-                        <button type="button" className="btn btn-xs btn-ghost" onClick={(e) => { e.stopPropagation(); onSoloWatch(item.id, 'watching'); }}>В "Смотрю сейчас"</button>
                       </>
                     );
                   }
