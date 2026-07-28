@@ -1,0 +1,18 @@
+{
+  "name": "Watch Together",
+  "short_name": "Watch",
+  "description": "Общий список фильмов, сериалов и аниме — смотрим вместе",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a12",
+  "theme_color": "#0f0f23",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

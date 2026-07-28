@@ -1,0 +1,11 @@
+node_modules
+dist
+.git
+.grok
+server/data
+deploy
+*.log
+.env
+.env.*
+design-system
+README.md
