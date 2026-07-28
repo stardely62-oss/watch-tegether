@@ -439,6 +439,10 @@ a {
   margin-bottom: 12px;
 }
 
+.home-counter:nth-child(3) {
+  grid-column: 1 / -1;
+}
+
 .home-counter {
   display: flex;
   flex-direction: column;

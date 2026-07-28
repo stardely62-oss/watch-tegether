@@ -137,7 +137,7 @@ export default function App() {
   const [filterFav, setFilterFav] = useState(false);
   const [filterMine, setFilterMine] = useState(false);
   const [filterUnrated, setFilterUnrated] = useState(false);
-  const [filterTonight, setFilterTonight] = useState(false);
+
   const [filterGenre, setFilterGenre] = useState('all');
   const [search, setSearch] = useState('');
   const [searchDebounced, setSearchDebounced] = useState('');
@@ -254,7 +254,6 @@ export default function App() {
     filterFav,
     filterMine,
     filterUnrated,
-    filterTonight,
     filterGenre,
     searchDebounced,
     sort,
@@ -287,7 +286,6 @@ export default function App() {
     if (filterFav) list = list.filter((m) => m.isFavorite);
     if (filterMine && user) list = list.filter((m) => m.addedBy === user.id);
     if (filterUnrated && user) list = list.filter((m) => !m.myRating);
-    if (filterTonight) list = list.filter((m) => m.suggestedTonight);
     if (filterGenre !== 'all') {
       list = list.filter((m) => (m.genres || []).includes(filterGenre));
     }
@@ -309,7 +307,7 @@ export default function App() {
     filterFav,
     filterMine,
     filterUnrated,
-    filterTonight,
+
     filterGenre,
     searchDebounced,
     user,
@@ -353,12 +351,11 @@ export default function App() {
       if (c[st] != null) c[st] += 1;
     }
     return c;
-  }, [baseFiltered]);
+  }, [baseFiltered, filterWatchMode, selectedSoloUserId, user]);
 
   /** Home = only counters; open a list by tapping a counter */
   const isHome =
     filterStatus === 'all' &&
-    !filterTonight &&
     !filterFav &&
     !filterMine &&
     !filterUnrated &&
@@ -369,9 +366,7 @@ export default function App() {
     filterStatus === 'all' ? SECTION_PAGE_ALL : SECTION_PAGE_FOCUS;
 
   const listTitle =
-    filterTonight
-      ? 'На вечер'
-      : filterStatus === 'want'
+    filterStatus === 'want'
         ? 'Хотим посмотреть'
         : filterStatus === 'watching'
           ? 'Смотрим сейчас'
@@ -383,7 +378,6 @@ export default function App() {
 
   const goHome = () => {
     setFilterStatus('all');
-    setFilterTonight(false);
     setFilterFav(false);
     setFilterMine(false);
     setFilterUnrated(false);
@@ -452,26 +446,7 @@ export default function App() {
     setUser(u);
   };
 
-  const handleSuggestTonight = async (item) => {
-    try {
-      const updated = await api.updateMedia(item.id, {
-        suggestedTonight: !item.suggestedTonight,
-      });
-      setMedia((prev) =>
-        prev.map((m) => (m.id === item.id ? { ...m, ...updated } : m))
-      );
-      if (detailItem?.id === item.id) {
-        setDetailItem((d) => ({ ...d, ...updated }));
-      }
-      showToast(
-        updated.suggestedTonight
-          ? 'Добавлено в «на вечер»'
-          : 'Убрано из «на вечер»'
-      );
-    } catch (e) {
-      showToast(e.message);
-    }
-  };
+
 
   const handleRandomPick = () => {
     const pool = media.filter(
@@ -716,7 +691,6 @@ export default function App() {
                   count: statusCounts.watching,
                   cls: 'watching',
                   onClick: () => {
-                    setFilterTonight(false);
                     setFilterStatus('watching');
                   },
                 },
@@ -727,19 +701,7 @@ export default function App() {
                   count: statusCounts.watched,
                   cls: 'watched',
                   onClick: () => {
-                    setFilterTonight(false);
                     setFilterStatus('watched');
-                  },
-                },
-                {
-                  id: 'tonight',
-                  label: 'На вечер',
-                  hint: 'Предложения',
-                  count: baseFiltered.filter((m) => m.suggestedTonight).length,
-                  cls: 'tonight',
-                  onClick: () => {
-                    setFilterStatus('all');
-                    setFilterTonight(true);
                   },
                 },
               ].map((c) => (
@@ -1059,16 +1021,13 @@ export default function App() {
                   if (filterStatus !== 'all' && section.id !== filterStatus) {
                     return null;
                   }
-                  if (filterTonight && section.items.length === 0) {
-                    return null;
-                  }
                   return (
                     <section
                       key={section.id}
                       className={`list-section list-section-${section.id}`}
                       aria-labelledby={`section-${section.id}`}
                     >
-                      {filterStatus === 'all' && !filterTonight && (
+                      {filterStatus === 'all' && (
                         <header className="list-section-head">
                           <div className="list-section-titles">
                             <h2 id={`section-${section.id}`}>
@@ -1172,7 +1131,6 @@ export default function App() {
                 media.find((m) => m.id === detailItem.id) || detailItem
               )
             }
-            onTonight={() => handleSuggestTonight(detailItem)}
             onUpdated={(updated) => {
               setDetailItem((d) => ({ ...d, ...updated }));
               setMedia((prev) =>

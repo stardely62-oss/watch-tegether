@@ -29,7 +29,7 @@ export default function DetailModal({
   onFav,
   onStatus,
   onDelete,
-  onTonight,
+
   onUpdated,
   onBanUser,
 }) {
@@ -156,19 +156,7 @@ export default function DetailModal({
                     >
                       ✏️ Править
                     </button>
-                    <button
-                      type="button"
-                      role="menuitem"
-                      onClick={() => {
-                        setMenuOpen(false);
-                        onTonight();
-                      }}
-                    >
-                      🌙{' '}
-                      {item.suggestedTonight
-                        ? 'Убрать с вечера'
-                        : 'На вечер'}
-                    </button>
+
                     <button
                       type="button"
                       role="menuitem"
@@ -207,9 +195,7 @@ export default function DetailModal({
           <span className={`status-pill ${item.status}`}>
             {STATUS_LABEL[item.status]}
           </span>
-          {item.suggestedTonight && (
-            <span className="status-pill watching">На вечер</span>
-          )}
+
           {formatProgress(item) && (
             <span className="progress-pill">{formatProgress(item)}</span>
           )}
