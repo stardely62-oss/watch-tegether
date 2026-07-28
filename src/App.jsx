@@ -130,6 +130,7 @@ export default function App() {
 
   const [filterType, setFilterType] = useState('all');
   const [filterWatchMode, setFilterWatchMode] = useState('all');
+  const [selectedSoloUserId, setSelectedSoloUserId] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterFav, setFilterFav] = useState(false);
   const [filterMine, setFilterMine] = useState(false);
@@ -292,6 +293,7 @@ export default function App() {
     media,
     filterType,
     filterWatchMode,
+    selectedSoloUserId,
     filterFav,
     filterMine,
     filterUnrated,
@@ -631,6 +633,35 @@ export default function App() {
                 👤 В одиночку
               </button>
             </div>
+
+            {filterWatchMode === 'solo' && (
+              <div className="solo-user-picker" role="tablist" aria-label="Выбор пользователя">
+                <span className="solo-picker-label">👤 Личные списки:</span>
+                <button
+                  type="button"
+                  className={`solo-user-chip ${(!selectedSoloUserId || selectedSoloUserId === user?.id) ? 'active' : ''}`}
+                  onClick={() => setSelectedSoloUserId(user?.id || '')}
+                >
+                  <span className="mini-avatar" style={{ background: user?.color || '#3b82f6' }}>
+                    {initial(user?.name)}
+                  </span>
+                  <span>Мой список (Вы)</span>
+                </button>
+                {(friends || []).map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    className={`solo-user-chip ${selectedSoloUserId === f.id ? 'active' : ''}`}
+                    onClick={() => setSelectedSoloUserId(f.id)}
+                  >
+                    <span className="mini-avatar" style={{ background: f.color || '#64748b' }}>
+                      {initial(f.name)}
+                    </span>
+                    <span>{f.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="home-hero">
               <p className="home-lead">
                 {stats
