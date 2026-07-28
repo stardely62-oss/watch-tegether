@@ -451,6 +451,7 @@ export const db = {
       watchMode: ["together", "solo"].includes(watchMode) ? watchMode : "together",
       soloUserId: watchMode === "solo" ? (soloUserId || addedBy) : null,
       watchedByUsers: Array.isArray(watchedByUsers) && watchedByUsers.length > 0 ? watchedByUsers : (watchMode === "solo" ? [addedBy] : []),
+      soloStatuses: watchMode === "solo" ? { [addedBy]: status === 'watched' ? 'watched' : 'want' } : {},
       addedBy,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -532,20 +533,28 @@ export const db = {
   },
 
 
-  toggleSoloWatch(id, userId) {
+  setSoloStatus(id, userId, status) {
     const idx = cache.media.findIndex((m) => m.id === id);
     if (idx === -1) return null;
     const m = cache.media[idx];
-    let list = Array.isArray(m.watchedByUsers) ? m.watchedByUsers.slice() : (m.soloUserId ? [m.soloUserId] : []);
-    if (list.includes(userId)) {
-      list = list.filter((u) => u !== userId);
+    if (!m.soloStatuses) m.soloStatuses = {};
+
+    if (m.soloStatuses[userId] === status) {
+      delete m.soloStatuses[userId];
     } else {
-      list.push(userId);
+      m.soloStatuses[userId] = status;
     }
-    m.watchedByUsers = list;
-    m.watchMode = list.length > 0 ? "solo" : "together";
-    m.soloUserId = list.length > 0 ? list[0] : null;
+
+    const watchers = Object.keys(m.soloStatuses);
+    if (m.addedBy && !watchers.includes(m.addedBy)) {
+      watchers.push(m.addedBy); // ensure original author is part of watchers
+    }
+
+    m.watchedByUsers = watchers;
+    m.watchMode = watchers.length > 0 ? "solo" : "together";
+    m.soloUserId = watchers.length > 0 ? watchers[0] : null;
     m.updatedAt = new Date().toISOString();
+    
     cache.media[idx] = m;
     bumpVersion();
     scheduleFlush();

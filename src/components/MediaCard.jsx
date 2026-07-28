@@ -103,18 +103,35 @@ const MediaCard = memo(function MediaCard({
                 ))}
               </div>
             </div>
-            {onSoloWatch && !item.hasWatchedSolo && item.addedBy !== currentUser?.id && (
-            <button
-              type="button"
-              className="btn btn-xs btn-ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                onSoloWatch(item.id);
-              }}
-              title="Отметить, что я тоже посмотрел(а)"
-            >
-              + Я тоже посмотрел(а)
-            </button>
+            {onSoloWatch && item.addedBy !== currentUser?.id && (
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                {item.soloStatuses?.[currentUser?.id] !== 'watched' && (
+                  <button
+                    type="button"
+                    className="btn btn-xs btn-ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSoloWatch(item.id, 'watched');
+                    }}
+                    title="Отметить, что я тоже посмотрел(а)"
+                  >
+                    + Я тоже посмотрел(а)
+                  </button>
+                )}
+                {item.soloStatuses?.[currentUser?.id] !== 'want' && item.soloStatuses?.[currentUser?.id] !== 'watched' && (
+                  <button
+                    type="button"
+                    className="btn btn-xs btn-ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSoloWatch(item.id, 'want');
+                    }}
+                    title="Добавить в мой список «Хочу посмотреть»"
+                  >
+                    + Тоже хочу
+                  </button>
+                )}
+              </div>
             )}
           </div>
         )}

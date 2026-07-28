@@ -6,7 +6,7 @@ import {
 } from 'react';
 import {
   api,
-  toggleSoloWatch,
+  setSoloStatus,
   clearSession,
   ensureTelegramSession,
   getToken,
@@ -321,7 +321,12 @@ export default function App() {
       watching: [],
       watched: [],
     };
-    for (const item of baseFiltered) {
+    for (let item of baseFiltered) {
+      if (filterWatchMode === 'solo') {
+        const targetId = selectedSoloUserId || user?.id;
+        const st = item.soloStatuses?.[targetId] || item.status;
+        item = { ...item, status: st };
+      }
       const key = byStatus[item.status] ? item.status : 'want';
       byStatus[key].push(item);
     }
@@ -343,7 +348,9 @@ export default function App() {
   const statusCounts = useMemo(() => {
     const c = { want: 0, watching: 0, watched: 0 };
     for (const m of baseFiltered) {
-      if (c[m.status] != null) c[m.status] += 1;
+      const targetId = selectedSoloUserId || user?.id;
+      const st = (filterWatchMode === 'solo') ? (m.soloStatuses?.[targetId] || m.status) : m.status;
+      if (c[st] != null) c[st] += 1;
     }
     return c;
   }, [baseFiltered]);
@@ -481,9 +488,9 @@ export default function App() {
 
 
 
-  const handleSoloWatch = async (id) => {
+  const handleSoloStatus = async (id, status) => {
     try {
-      const res = await toggleSoloWatch(id);
+      const res = await setSoloStatus(id, status);
       setMedia((prev) => prev.map((m) => (m.id === id ? res : m)));
     } catch (e) { console.error(e); }
   };
@@ -1084,7 +1091,7 @@ export default function App() {
                               <MediaCard
                                 key={item.id}
                                 item={item}
-                                onSoloWatch={handleSoloWatch}
+                                onSoloWatch={(id, status) => handleSoloStatus(id, status)}
                                 currentUser={user}
                                 onFav={() => handleToggleFav(item)}
                                 onRate={() => setRateItem(item)}
@@ -1151,7 +1158,7 @@ export default function App() {
               }
             }}
             onRate={() => setRateItem(detailItem)}
-            onSoloWatch={handleSoloWatch}
+            onSoloWatch={(id, status) => handleSoloStatus(id, status)}
             currentUser={user}
             onFav={() => handleToggleFav(detailItem)}
             onStatus={(s) =>

@@ -429,6 +429,9 @@ export const api = {
     ),
 };
 
-export async function toggleSoloWatch(id) {
-  return rawFetch(`/api/media/${id}/solo-watch`, { method: 'POST' });
+export async function setSoloStatus(id, status) {
+  return rawFetch(`/api/media/${id}/solo-status`, {
+    method: 'POST',
+    body: JSON.stringify({ status }),
+  });
 }

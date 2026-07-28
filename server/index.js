@@ -485,6 +485,7 @@ function enrichOne(item, userId, { full = true } = {}) {
     soloUser: soloUser ? { id: soloUser.id, name: soloUser.name, color: soloUser.color } : null,
     watchedByUsers,
     watchedByUsersDetails,
+    soloStatuses: item.soloStatuses || {},
     hasWatchedSolo: userId ? watchedByUsers.includes(userId) : false,
     addedBy: item.addedBy,
     createdAt: item.createdAt,
@@ -818,9 +819,13 @@ app.delete('/api/media/:id/rating', requireAuth, (req, res) => {
 });
 
 
-// Solo Watch toggle
-app.post('/api/media/:id/solo-watch', requireAuth, (req, res) => {
-  const item = db.toggleSoloWatch(req.params.id, req.user.id);
+// Solo Status toggle
+app.post('/api/media/:id/solo-status', requireAuth, (req, res) => {
+  const { status } = req.body || {};
+  if (!['watched', 'want'].includes(status)) {
+    return res.status(400).json({ error: 'Неверный статус' });
+  }
+  const item = db.setSoloStatus(req.params.id, req.user.id, status);
   if (!item) return res.status(404).json({ error: 'Не найден' });
   res.json(enrichMedia(item, req.user.id, { full: false }));
 });
