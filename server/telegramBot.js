@@ -70,9 +70,6 @@ export async function sendWebAppInvite(chatId, { text } = {}) {
       'Общий список фильмов с друзьями.',
       '',
       'Нажми кнопку — откроется мини‑приложение.',
-      '',
-      `Ссылка: https://t.me/${username}/app`,
-      `Запасная: https://t.me/${username}?startapp`,
     ].join('\n');
 
   await tg('sendMessage', {
@@ -202,8 +199,6 @@ export async function handleUpdate(update) {
         '',
         '1) Кнопка меню «Смотрим» слева от поля ввода',
         '2) Команда /start или /app',
-        `3) https://t.me/${username}/app`,
-        `4) https://t.me/${username}?startapp`,
       ].join('\n'),
       reply_markup: webAppKeyboards().inline,
     });
