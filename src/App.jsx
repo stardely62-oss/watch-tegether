@@ -695,7 +695,7 @@ export default function App() {
                   id: 'want',
                   label: 'Хотим посмотреть',
                   hint: 'Очередь',
-                  count: stats?.want ?? statusCounts.want,
+                  count: statusCounts.want,
                   cls: 'want',
                   onClick: () => {
                     setFilterTonight(false);
@@ -706,7 +706,7 @@ export default function App() {
                   id: 'watching',
                   label: 'Смотрим сейчас',
                   hint: 'В процессе',
-                  count: stats?.watching ?? statusCounts.watching,
+                  count: statusCounts.watching,
                   cls: 'watching',
                   onClick: () => {
                     setFilterTonight(false);
@@ -717,7 +717,7 @@ export default function App() {
                   id: 'watched',
                   label: 'Уже посмотрели',
                   hint: 'Архив',
-                  count: stats?.watched ?? statusCounts.watched,
+                  count: statusCounts.watched,
                   cls: 'watched',
                   onClick: () => {
                     setFilterTonight(false);
@@ -728,7 +728,7 @@ export default function App() {
                   id: 'tonight',
                   label: 'На вечер',
                   hint: 'Предложения',
-                  count: stats?.tonight ?? media.filter((m) => m.suggestedTonight).length,
+                  count: baseFiltered.filter((m) => m.suggestedTonight).length,
                   cls: 'tonight',
                   onClick: () => {
                     setFilterStatus('all');
