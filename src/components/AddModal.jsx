@@ -125,7 +125,7 @@ export default function AddModal({ onClose, onAdded }) {
       genres,
       trailerUrl: item.trailerUrl || '',
       watchLinks: item.kpId
-        ? `Кинопоиск|https://www.kinopoisk.ru/film/${item.kpId}/`
+        ? `Кинопоиск|https://www.kinokino.vip/film/${item.kpId}/`
         : '',
     });
   };
