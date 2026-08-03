@@ -172,9 +172,7 @@ function publicUser(u) {
     banned: Boolean(u.banned),
     lastSeenAt: u.lastSeenAt || null,
     createdAt: u.createdAt,
-    telegramId: u.telegramId ? String(u.telegramId) : null,
-    username: u.username || null,
-    photoUrl: u.photoUrl || null,
+    hasCustomName: Boolean(u.hasCustomName),
   };
 }
 
@@ -280,7 +278,7 @@ export const db = {
         return { error: 'Этот пользователь заблокирован' };
       }
       user.telegramId = telegramId;
-      user.name = nameFromTg || user.name;
+      user.name = user.hasCustomName ? user.name : (nameFromTg || user.name);
       user.username = tgUser.username || user.username || null;
       user.photoUrl = tgUser.photo_url || user.photoUrl || null;
       user.color = color;
@@ -299,6 +297,7 @@ export const db = {
       role: isAdminTg || cache.users.length === 0 ? 'admin' : 'user',
       banned: false,
       telegramId,
+      hasCustomName: false,
       username: tgUser.username || null,
       photoUrl: tgUser.photo_url || null,
       lastSeenAt: new Date().toISOString(),
@@ -346,6 +345,20 @@ export const db = {
     const u = cache.users.find((x) => x.id === targetId);
     if (!u) return { error: 'Не найден' };
     u.banned = Boolean(banned);
+    bumpVersion();
+    scheduleFlush();
+    return { user: publicUser(u) };
+  },
+
+  updateNickname(userId, name) {
+    const cleanName = clip(name, 32);
+    if (!cleanName || cleanName.length < 1) {
+      return { error: 'Никнейм не может быть пустым' };
+    }
+    const u = cache.users.find((x) => x.id === userId);
+    if (!u || u.banned) return { error: 'Пользователь не найден' };
+    u.name = cleanName;
+    u.hasCustomName = true;
     bumpVersion();
     scheduleFlush();
     return { user: publicUser(u) };

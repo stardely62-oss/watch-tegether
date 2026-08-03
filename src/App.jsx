@@ -51,9 +51,12 @@ import AddModal from './components/AddModal.jsx';
 import RateModal from './components/RateModal.jsx';
 import DetailModal from './components/DetailModal.jsx';
 import TasteModal from './components/TasteModal.jsx';
+import NicknameModal from './components/NicknameModal.jsx';
+import NicknameScreen from './components/NicknameScreen.jsx';
 
 export default function App() {
   const [user, setUser] = useState(loadUser);
+  const [showNicknameModal, setShowNicknameModal] = useState(false);
   const [media, setMedia] = useState([]);
   const [stats, setStats] = useState(null);
   // While TG Mini App re-auths, don't flash old session / fire API without token
@@ -576,6 +579,22 @@ export default function App() {
     );
   }
 
+  if (!user.hasCustomName) {
+    return (
+      <>
+        <Ambient />
+        <NicknameScreen
+          user={user}
+          onSave={(updatedUser) => {
+            setUser(updatedUser);
+            refresh();
+          }}
+          showToast={showToast}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       <Ambient />
@@ -591,7 +610,13 @@ export default function App() {
             </div>
           </div>
           <div className="header-right">
-            <div className="user-chip">
+            <button
+              type="button"
+              className="user-chip"
+              onClick={() => setShowNicknameModal(true)}
+              title="Сменить никнейм"
+              style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.06)' }}
+            >
               <div className="avatar-wrap">
                 <UserAvatar user={user} />
                 {user.role === 'admin' ? (
@@ -601,7 +626,8 @@ export default function App() {
                 ) : null}
               </div>
               <span className="name">{user.name}</span>
-            </div>
+              <span style={{ fontSize: '0.75rem', opacity: 0.6, marginLeft: '2px' }}>✏️</span>
+            </button>
           </div>
         </header>
 
@@ -790,11 +816,7 @@ export default function App() {
                                         ? `был(а) ${formatWatchedAt(f.lastSeenAt)}`
                                         : 'не в сети'}
                                   </span>
-                                  {f.username && (
-                                    <span className="friends-dropdown-user">
-                                      @{f.username}
-                                    </span>
-                                  )}
+
                                 </div>
                                 {user.role === 'admin' &&
                                   f.id !== user.id &&
@@ -1166,6 +1188,20 @@ export default function App() {
               setShowTaste(false);
               setTasteData(null);
             }}
+          />
+        )}
+
+        {showNicknameModal && (
+          <NicknameModal
+            user={user}
+            isFirstSetup={!user.hasCustomName}
+            onSave={(updatedUser) => {
+              setUser(updatedUser);
+              setShowNicknameModal(false);
+              refresh();
+            }}
+            onClose={() => setShowNicknameModal(false)}
+            showToast={showToast}
           />
         )}
 

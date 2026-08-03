@@ -236,6 +236,12 @@ export const api = {
 
   ping: () => request('/users/me/ping', { method: 'POST' }),
 
+  updateNickname: (name) =>
+    request('/users/me/nickname', {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+    }),
+
   banUser: (targetId, banned = true) =>
     request(`/users/${encodeURIComponent(targetId)}/ban`, {
       method: 'POST',

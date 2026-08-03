@@ -210,6 +210,13 @@ app.get('/api/users/:id', requireAuth, (req, res) => {
   res.json(user);
 });
 
+app.post('/api/users/me/nickname', requireAuth, (req, res) => {
+  const { name } = req.body || {};
+  const result = db.updateNickname(req.user.id, name);
+  if (result.error) return res.status(400).json({ error: result.error });
+  res.json(result);
+});
+
 app.post('/api/users/me/ping', requireAuth, (req, res) => {
   const user = db.touchUser(req.user.id);
   if (!user) return res.status(404).json({ error: 'Не найден' });
@@ -397,11 +404,11 @@ function enrichMediaList(userId, opts = {}) {
             id: addedByUser.id,
             name: addedByUser.name,
             color: addedByUser.color,
-            photoUrl: addedByUser.photoUrl || null,
+            
           }
         : item.addedBy
           ? null
-          : { id: null, name: 'неизвестно', color: '#64748b', photoUrl: null },
+          : { id: null, name: 'неизвестно', color: '#64748b' },
     };
 
     if (full || !list) {
@@ -502,11 +509,11 @@ function enrichOne(item, userId, { full = true } = {}) {
           id: addedByUser.id,
           name: addedByUser.name,
           color: addedByUser.color,
-          photoUrl: addedByUser.photoUrl || null,
+          
         }
       : item.addedBy
         ? null
-        : { id: null, name: 'неизвестно', color: '#64748b', photoUrl: null },
+        : { id: null, name: 'неизвестно', color: '#64748b' },
   };
   if (full) {
     out.ratings = ratings.map((r) => {

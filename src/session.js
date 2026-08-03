@@ -25,7 +25,7 @@ export function loadUser() {
     if (!raw) return null;
     const u = JSON.parse(raw);
     if (!u || typeof u !== 'object' || !u.id || !u.name) return null;
-    if (!u.telegramId) return null;
+    
     return u;
   } catch {
     return null;
